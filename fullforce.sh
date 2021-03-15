@@ -8,8 +8,8 @@
 script_directory=$(dirname ${BASH_SOURCE[0]})
 
 config=$1
-params.illumina=$2
-params.nanopore=$3
+params.reads=$2
+params.longreads=$3
 outdir=$4
 workdir=${5:-$USERWORK/fullforce}
 
