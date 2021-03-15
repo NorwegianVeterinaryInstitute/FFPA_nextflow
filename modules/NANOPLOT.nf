@@ -2,21 +2,23 @@
 // This will show reads with a max length of 3000 bp, longer sequences are likely not correct for amplicon sequencing.
 
 process NANOPLOT {
-            publishDir "${params.out_dir}/02_nanoplot_amplicon/", pattern: "*", mode: "copy"
+            container = 'docker://nanozoo/nanoplot:1.32.0--1ae6f5d'
+
+            publishDir "${params.out_dir}/nanoplot_longreads/", pattern: "*", mode: "copy"
 
             tag "$datasetID"
 
             input:
-            tuple val(datasetID), file(*)
+            tuple val(datasetID), file(reads)
 
             output:
-            path "*.summary-plots-log-transformed"
+            file("*")
 
             script:
             """
 
-            NanoPlot -t 4 --fastq_minimal barcode*.gz  --maxlength 3000 --plots hex dot --title Clean_data_Summary -o Clean_data.summary-plots-log-transformed
+            NanoPlot -t 4 --fastq ${datasetID}.trimmed.fastq.gz  --plots hex dot --title ${datasetID}.summary -o ${datasetID}.summary-plots-log-transformed --N50
 
             """
-            
+
 }

@@ -3,13 +3,15 @@ process QCAT {
   // the current version of qcat only uses the epi2me demultiplexing algorithm and that uses only one thread.
   // When it get's updated we might use more threads.
   // qcat is one
+            container = 'docker://mcfonsecalab/qcat'
+            label 'small'
 
             publishDir "${params.out_dir}/01_qcat/", pattern: "*", mode: "copy"
 
             tag "$datasetID"
 
             input:
-            tuple val(datasetID), file(longreads)
+            tuple val(datasetID), file(reads)
 
 	          output:
             file("*")
@@ -17,19 +19,17 @@ process QCAT {
 
 	          path "*", emit: qcatfiltered_ch
 	          file("*.log")
-	          file("*.txt")
 
             script:
             """
-            zcat *.fastq.gz > ${datasetID}.fastq
 
-            echo processing ${datasetID}.fastq
+            echo processing ${datasetID}.fastq.gz
 
             ##running qcat with default parameters
 
-            qcat -t 1 -f ${datasetID}.fastq -o ${datasetID}.trimmed.fastq --tsv > qcat.${datasetID}.processing.log 2>stdout.log
+            zcat ${datasetID}.fastq.gz | qcat -t 1  -o ${datasetID}.trimmed.fastq --tsv > qcat.${datasetID}.processing.log 2>stdout.log
 
-            gzip ${datasetID}.trimmed.fastq > ${datasetID}.trimmed.fastq.gz
+            gzip ${datasetID}.trimmed.fastq
 
 	"""
 	// need to add a way to extract for each barcode the names of the reads and then put that in a list
