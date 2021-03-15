@@ -21,35 +21,31 @@ nextflow.enable.dsl=2
 // Workflows
 workflow HYBRID_ASSEMBLY {
 
-	include { QCAT } from "${params.module_dir}/QCAT.nf"
-  include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
-	//include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
-  //include { FASTQC } from "${params.module_dir}/FASTQC.nf"
+// Set channels
+  Channel
+          .fromFilePairs(params.reads, flat: true,  checkIfExists: true)
+          .set { readfiles_ch }
 
-	// Set channels
-	Channel
-					.fromFilePairs(params.reads, flat: true,  checkIfExists: true)
-					.set { readfiles_ch }
+  Channel
+          .fromPath(params.longreads, checkIfExists: true)
+          .map { file -> tuple(file.simpleName, file) }
+          .set { longreads_ch }
 
-	Channel
-					.fromPath(params.longreads, checkIfExists: true)
-					.map { file -> tuple(file.simpleName, file) }
-					.set { longreads_ch }
+  /*Channel
+  *.value(params.kraken_db)
+  *	.set { krakendb }
+  *
+  *Channel
+  *.value(params.sequencer)
+  *.set { seq_type }
+  *
+  *Channel
+  *	.value(params.illumina_filtering)
+  *	.set { filt_illu }
+  */
 
-	/*Channel
-	*.value(params.kraken_db)
-	*	.set { krakendb }
-	*
-	*Channel
-	*.value(params.sequencer)
-	*.set { seq_type }
-	*
-	*Channel
-	*	.value(params.illumina_filtering)
-	*	.set { filt_illu }
-	*/
-		// nanopore data qc
-		QCAT(longreads_ch)
+// nanopore data qc
+    QCAT(longreads_ch)
     NANOPLOT(QCAT.out.filtered_longreads)
 
 
@@ -60,24 +56,25 @@ workflow HYBRID_ASSEMBLY {
 
 }
 
-/* selecting the correct workflow based on user choice defined in main.config.
+// selecting the correct workflow based on user choice defined in main.config.
 
 workflow {
-if (params.type == "hybrid") {
+if (params.track == "hybrid") {
 
-	include { QCAT } from "${params.module_dir}/QCAT.nf"
+  // loading the required modules.
+  include { QCAT } from "${params.module_dir}/QCAT.nf"
   include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
   //include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
   //include { FASTQC } from "${params.module_dir}/FASTQC.nf"
 
-	HYBRID_ASSEMBLY()
+  HYBRID_ASSEMBLY()
 	}
 
-if (params.type == "nanopore") {
+if (params.track == "nanopore") {
 	NANOPORE_ASSEMBLY()
 	}
 
-if (params.type == "illumina") {
+if (params.track == "illumina") {
 	ILLUMINA_ASSEMBLY()
 	}
 }
