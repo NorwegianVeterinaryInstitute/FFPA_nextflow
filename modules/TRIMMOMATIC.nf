@@ -1,33 +1,35 @@
 process TRIM {
+          //container = 'docker://thhaverk/trimmomatic'
+          container = 'file:////cluster/projects/nn9305k/nextflow/singularity_img/trimmomatic_NVI_0.38.sif'
 
-	      tag "$datasetID"
+          label 'tiny'
 
-        input:
-        tuple val(datasetID), file(R1), file(R2)
+          publishDir "${params.out_dir}/trimmomatic/", pattern: "*", mode: "copy"
 
-        output:
-        file("*")
-        tuple val(datasetID), path {"*val_1.fq.gz"}, path {"*val_2.fq.gz"}, emit: trim_reads
+          tag "$datasetID"
 
-        script:
-        """
-        trimmomatic PE $R1 $R2 /tmp/output_forward_paired.fq.gz /tmp/output_forward_unpaired.fq.gz /tmp/output_reverse_paired.fq.gz /tmp/output_reverse_unpaired.fq.gz \
-         ILLUMINACLIP:{}:2:30:10 LEADING:20 TRAILING:20 MINLEN:140".format(target_dir, jobid, illumina_name1, illumina_name2, trimmomatic_db)
+          input:
 
+          tuple val(datasetID), file(R1), file(R2)
 
-         trimmomatic PE -threads $task.cpus -trimlog ${pair_id}_trimmed.log ${pair_id}*.gz \
-    -baseout ${pair_id}_trimmed.fq.gz ILLUMINACLIP:${params.adapter_dir}/${params.adapters}:${params.illuminaClipOptions} \
-    SLIDINGWINDOW:${params.slidingwindow} \
-    LEADING:${params.leading} TRAILING:${params.trailing} \
-    MINLEN:${params.minlen} &> ${pair_id}_run.log
+          output:
+          file("*")
+          tuple val(datasetID), path {"${datasetID}.trimmed.R1.fq.gz"}, path {"${datasetID}.trimmed.R2.fq.gz"}, emit: trim_reads
 
+          script:
+          """
 
-    mv ${pair_id}_trimmed_1P.fq.gz ${pair_id}_R1.trimmed.fq.gz
-    mv ${pair_id}_trimmed_2P.fq.gz ${pair_id}_R2.trimmed.fq.gz
-    cat ${pair_id}_trimmed_1U.fq.gz ${pair_id}_trimmed_2U.fq.gz > ${pair_id}_S_concat_stripped_trimmed.fq.gz
+          trimmomatic PE -threads $task.cpus -trimlog ${datasetID}.trim.log \
+            $R1 $R2 -baseout ${datasetID}.trimmed.fq.gz \
+            ILLUMINACLIP:${params.adapter_dir}/${params.adapters}:2:30:10 \
+            LEADING:3 TRAILING:3 \
+            SLIDINGWINDOW:4:15 MINLEN:36 &> ${datasetID}.run.log
 
+          mv ${datasetID}.trimmed_1P.fq.gz ${datasetID}.trimmed.R1.fq.gz
+          mv ${datasetID}.trimmed_2P.fq.gz ${datasetID}.trimmed.R2.fq.gz
+          cat ${datasetID}.trimmed_1U.fq.gz ${datasetID}.trimmed_2U.fq.gz > ${datasetID}_S_concat_stripped_trimmed.fq.gz
 
+          rm -r ${datasetID}.trimmed_*U.fq.gz
 
-
-        """
+          """
 }
