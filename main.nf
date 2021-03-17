@@ -24,7 +24,9 @@ workflow HYBRID_ASSEMBLY {
 // Set channels
   Channel
           .fromFilePairs(params.reads, flat: true,  checkIfExists: true)
+          .ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
           .set { readfiles_ch }
+
 
   Channel
           .fromPath(params.longreads, checkIfExists: true)
@@ -46,12 +48,11 @@ workflow HYBRID_ASSEMBLY {
 
 // nanopore data qc
     QCAT(longreads_ch)
-    NANOPLOT(QCAT.out.filtered_longreads)
+    //NANOPLOT(QCAT.out.filtered_longreads)
 
-
-		// illumina data qc
-		//TRIM(readfiles_ch)
-		//FASTQC(TRIM.out.trim_reads)
+    // illumina data qc
+    TRIM(readfiles_ch)
+    FASTQC(TRIM.out.trim_reads)
 
 
 }
@@ -63,9 +64,9 @@ if (params.track == "hybrid") {
 
   // loading the required modules.
   include { QCAT } from "${params.module_dir}/QCAT.nf"
-  include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
-  //include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
-  //include { FASTQC } from "${params.module_dir}/FASTQC.nf"
+  //include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
+  include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
+  include { FASTQC } from "${params.module_dir}/FASTQC.nf"
 
   HYBRID_ASSEMBLY()
 	}
