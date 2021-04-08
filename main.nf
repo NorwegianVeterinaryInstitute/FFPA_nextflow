@@ -48,7 +48,8 @@ workflow HYBRID_ASSEMBLY {
 
 // nanopore data qc
     QCAT(longreads_ch)
-    //NANOPLOT(QCAT.out.filtered_longreads)
+    NANOPLOT(QCAT.out.trimmed_longreads)
+    NANOFILT(QCAT.out.trimmed_longreads)
 
     // illumina data qc
     TRIM(readfiles_ch)
@@ -64,7 +65,8 @@ if (params.track == "hybrid") {
 
   // loading the required modules.
   include { QCAT } from "${params.module_dir}/QCAT.nf"
-  //include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
+  include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
+  include { NANOFILT } from "${params.module_dir}/NANOFILT.nf"
   include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
   include { FASTQC } from "${params.module_dir}/FASTQC.nf"
 
