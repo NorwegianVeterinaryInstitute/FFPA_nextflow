@@ -1,8 +1,8 @@
 // this module runs kraken on either nanopore or illumina datasets.
 
 process KRAKENNP {
-          //container = 'docker://thhaverk/trimmomatic'
-          //container = 'file:////cluster/projects/nn9305k/nextflow/singularity_img/trimmomatic_NVI_0.38.sif'
+          //container = 'docker://flowcraft/kraken'  # this was the original docker. Not used because the size was too large.
+          
           container = 'file:////cluster/projects/nn9305k/nextflow/singularity_img/kraken_NVI_1.1.1.sif'
 
           //containerOptions '--volume ${params.kraken1.dir}' MAYBE REMOVE
