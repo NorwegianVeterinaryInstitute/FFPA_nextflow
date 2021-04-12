@@ -16,7 +16,7 @@ process QCAT {
 
 	          output:
             file("*")
-            tuple val(datasetID), path {"*trimmed.fastq.gz"}, emit: trimmed_longreads
+            tuple val(datasetID), path {"*trimmed.fastq.gz"}, emit: trimmed_longreads_ch
 
 	          path "*", emit: qcatfiltered_ch
 	          file("*.log")

@@ -1,10 +1,12 @@
+// this module runs trimmomatic on ILLUMINA datasets
+
 process TRIM {
           //container = 'docker://thhaverk/trimmomatic'
           container = 'file:////cluster/projects/nn9305k/nextflow/singularity_img/trimmomatic_NVI_0.38.sif'
 
           label 'tiny'
 
-          publishDir "${params.out_dir}/trimmomatic/", pattern: "*", mode: "copy"
+          publishDir "${params.out_dir}/trimmomatic/${datasetID}/", pattern: "*", mode: "copy"
 
           tag "$datasetID"
 
@@ -14,7 +16,7 @@ process TRIM {
 
           output:
           file("*")
-          tuple val(datasetID), path {"${datasetID}.trimmed.R1.fq.gz"}, path {"${datasetID}.trimmed.R2.fq.gz"}, emit: trim_reads
+          tuple val(datasetID), path {"${datasetID}.trimmed.R1.fq.gz"}, path {"${datasetID}.trimmed.R2.fq.gz"}, emit: trim_reads_ch
 
           script:
           """

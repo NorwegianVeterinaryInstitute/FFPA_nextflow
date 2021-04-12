@@ -14,7 +14,7 @@ process NANOFILT {
 
             output:
             file("*")
-            tuple val(datasetID), path {"*.filter.fastq.gz"}, emit: filtered_longreads
+            tuple val(datasetID), path {"*.filter.fastq.gz"}, emit: filtered_longreads_ch
 
             script:
 

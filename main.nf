@@ -8,8 +8,8 @@ log.info """\
          Output - directory             : ${params.out_dir}
          Temporary - directory          : ${workDir}
         --------------------------------- ---------------------------------
-         kraken database                : NEEDS TO BE ADDED
-         ANYTHING ELSE?
+         kraken database                : ${params.kraken1.dir}/${params.kraken1.db}
+         trimmomatic adapters           : ${params.adapter_dir}/${params.adapters}
         --------------------------------- ---------------------------------
 
 		 """
@@ -30,6 +30,7 @@ workflow HYBRID_ASSEMBLY {
 
   Channel
           .fromPath(params.longreads, checkIfExists: true)
+          .ifEmpty { error "Cannot find any longreads matching: ${params.longreads}" }
           .map { file -> tuple(file.simpleName, file) }
           .set { longreads_ch }
 
@@ -48,12 +49,15 @@ workflow HYBRID_ASSEMBLY {
 
 // nanopore data qc
     QCAT(longreads_ch)
-    NANOPLOT(QCAT.out.trimmed_longreads)
-    NANOFILT(QCAT.out.trimmed_longreads)
+    NANOPLOT(QCAT.out.trimmed_longreads_ch)
+    NANOFILT(QCAT.out.trimmed_longreads_ch)
+    KRAKENNP(NANOFILT.out.filtered_longreads_ch)
+    NPASSEMBLY(NANOFILT.out.filtered_longreads_ch)
 
     // illumina data qc
     TRIM(readfiles_ch)
-    FASTQC(TRIM.out.trim_reads)
+    FASTQC(TRIM.out.trim_reads_ch)
+    KRAKENIL(TRIM.out.trim_reads_ch)
 
 
 }
@@ -67,8 +71,11 @@ if (params.track == "hybrid") {
   include { QCAT } from "${params.module_dir}/QCAT.nf"
   include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
   include { NANOFILT } from "${params.module_dir}/NANOFILT.nf"
+  //include { KRAKENNP } from "${params.module_dir}/KRAKEN.nf"
+  include { KRAKENNP } from "${params.module_dir}/KRAKEN.nf"
   include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
   include { FASTQC } from "${params.module_dir}/FASTQC.nf"
+  include { KRAKENIL } from "${params.module_dir}/KRAKEN.nf"
 
   HYBRID_ASSEMBLY()
 	}
