@@ -2,10 +2,8 @@
 
 process KRAKENNP {
           //container = 'docker://flowcraft/kraken'  # this was the original docker. Not used because the size was too large.
-          
-          container = 'file:////cluster/projects/nn9305k/nextflow/singularity_img/kraken_NVI_1.1.1.sif'
 
-          //containerOptions '--volume ${params.kraken1.dir}' MAYBE REMOVE
+          container = 'file:////cluster/projects/nn9305k/nextflow/singularity_img/kraken_NVI_1.1.1.sif'
 
           label 'tiny'
 

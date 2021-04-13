@@ -47,18 +47,25 @@ workflow HYBRID_ASSEMBLY {
   *	.set { filt_illu }
   */
 
-// nanopore data qc
+    // nanopore data qc
     QCAT(longreads_ch)
     NANOPLOT(QCAT.out.trimmed_longreads_ch)
     NANOFILT(QCAT.out.trimmed_longreads_ch)
     KRAKENNP(NANOFILT.out.filtered_longreads_ch)
-    NPASSEMBLY(NANOFILT.out.filtered_longreads_ch)
+    UNICYCLER_NP(NANOFILT.out.filtered_longreads_ch)
 
     // illumina data qc
     TRIM(readfiles_ch)
     FASTQC(TRIM.out.trim_reads_ch)
     KRAKENIL(TRIM.out.trim_reads_ch)
 
+    //Hybrid assembly clusterOptions
+    // combining read datasets into one channels
+    TRIM.out.trim_reads_ch
+        .join(NANOFILT.out.filtered_longreads_ch, by: 0)
+        .set { all_reads_ch}
+
+    UNICYCLER_HYBRID(all_reads_ch)
 
 }
 
@@ -71,11 +78,12 @@ if (params.track == "hybrid") {
   include { QCAT } from "${params.module_dir}/QCAT.nf"
   include { NANOPLOT } from "${params.module_dir}/NANOPLOT.nf"
   include { NANOFILT } from "${params.module_dir}/NANOFILT.nf"
-  //include { KRAKENNP } from "${params.module_dir}/KRAKEN.nf"
   include { KRAKENNP } from "${params.module_dir}/KRAKEN.nf"
+  include {UNICYCLER_NP } from "${params.module_dir}/UNICYCLER.nf"
   include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
   include { FASTQC } from "${params.module_dir}/FASTQC.nf"
   include { KRAKENIL } from "${params.module_dir}/KRAKEN.nf"
+  include { UNICYCLER_HYBRID } from "${params.module_dir}/UNICYCLER.nf"
 
   HYBRID_ASSEMBLY()
 	}
