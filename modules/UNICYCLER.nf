@@ -11,7 +11,7 @@ process UNICYCLER_NP {
 
            label 'assembly'
 
-           publishDir "${params.out_dir}/unicycler/${datasetID}/", pattern: "*", mode: "copy"
+           publishDir "${params.out_dir}/${datasetID}/nanopore_unicycler/", pattern: "*", mode: "copy"
 
            tag "$datasetID"
 
@@ -21,7 +21,7 @@ process UNICYCLER_NP {
 
            output:
            file("*")
-           tuple val(datasetID), path {"*.fasta"}, emit: new_assemblies_ch
+           tuple val(datasetID), path {"*.fasta"}, emit: np_assemblies_ch
 
            script:
            """
@@ -40,7 +40,7 @@ process UNICYCLER_HYBRID {
 
           label 'assembly'
 
-          publishDir "${params.out_dir}/unicycler/${datasetID}/", pattern: "*", mode: "copy"
+          publishDir "${params.out_dir}/${datasetID}/hybrid_unicycler/", pattern: "*", mode: "copy"
 
           tag "$datasetID"
 
@@ -50,7 +50,7 @@ process UNICYCLER_HYBRID {
 
           output:
           file("*")
-          tuple val(datasetID), path {"*.fasta"}, emit: new_assemblies_ch
+          tuple val(datasetID), path {"*.fasta"}, emit: hyb_assemblies_ch
 
           script:
           """

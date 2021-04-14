@@ -7,7 +7,7 @@ process QCAT {
             container = 'docker://mcfonsecalab/qcat'
             label 'small'
 
-            publishDir "${params.out_dir}/qcat/${datasetID}/", pattern: "*", mode: "copy"
+            publishDir "${params.out_dir}/${datasetID}/qcat/", pattern: "*", mode: "copy"
 
             tag "$datasetID"
 

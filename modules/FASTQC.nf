@@ -1,7 +1,7 @@
 process FASTQC {
 				container = 'docker://nanozoo/fastqc'
 
-				publishDir "${params.out_dir}/fastqc/", pattern: "*", mode: "copy"
+				publishDir "${params.out_dir}/${datasetID}/fastqc/", pattern: "*", mode: "copy"
 
 				label 'tiny'
 
@@ -16,6 +16,6 @@ process FASTQC {
 
         """
         mkdir $datasetID
-        fastqc $R1 $R2 -o $datasetID -t $task.cpus
+        fastqc $R1 $R2 -o ${datasetID} -t $task.cpus
         """
 }

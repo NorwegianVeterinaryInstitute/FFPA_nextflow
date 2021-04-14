@@ -5,7 +5,7 @@ process NANOFILT {
             container = 'docker://mcfonsecalab/nanofilt'
             label 'small'
 
-            publishDir "${params.out_dir}/nanofilt/${datasetID}/", pattern: "*", mode: "copy"
+            publishDir "${params.out_dir}/${datasetID}/nanofilt/", pattern: "*", mode: "copy"
 
             tag "$datasetID"
 

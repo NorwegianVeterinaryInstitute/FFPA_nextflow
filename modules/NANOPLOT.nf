@@ -4,7 +4,7 @@
 process NANOPLOT {
             container = 'docker://nanozoo/nanoplot:1.32.0--1ae6f5d'
 
-            publishDir "${params.out_dir}/nanoplot_longreads/${datasetID}/", pattern: "*", mode: "copy"
+            publishDir "${params.out_dir}/${datasetID}/nanoplot_longreads/", pattern: "*", mode: "copy"
 
             tag "$datasetID"
 

@@ -7,7 +7,7 @@ process KRAKENNP {
 
           label 'tiny'
 
-          publishDir "${params.out_dir}/kraken/${datasetID}/", pattern: "*", mode: "copy"
+          publishDir "${params.out_dir}/${datasetID}/kraken/", pattern: "*", mode: "copy"
 
           tag "$datasetID"
 
@@ -28,7 +28,11 @@ process KRAKENNP {
           --output ${datasetID}.kr1.nanopore.out \
           ${datasetID}.filter.fastq.gz
 
-          kraken-report --db ${params.kraken1.dir}/${params.kraken1.db} ${datasetID}.kr1.nanopore.out  > ${datasetID}.kraken_report_nanopore.txt
+          kraken-report --db ${params.kraken1.dir}/${params.kraken1.db} ${datasetID}.kr1.nanopore.out  > kraken_report_nanopore.txt
+
+          # filtering out low abundance hits
+
+          awk '\$1>1 {print \$0}' kraken_report_nanopore.txt > kraken_report_nanopore_1percenthits.txt
 
           #compressing the *.out file
           gzip -9 *.out
@@ -49,7 +53,7 @@ process KRAKENIL {
 
           label 'tiny'
 
-          publishDir "${params.out_dir}/kraken/${datasetID}/", pattern: "*", mode: "copy"
+          publishDir "${params.out_dir}/${datasetID}/kraken/", pattern: "*", mode: "copy"
 
           tag "$datasetID"
 
@@ -70,7 +74,11 @@ process KRAKENIL {
           --output ${datasetID}.kr1.illumina.out \
           $R1 $R2
 
-          kraken-report --db ${params.kraken1.dir}/${params.kraken1.db} ${datasetID}.kr1.illumina.out  > ${datasetID}.kraken_report_illumina.txt
+          kraken-report --db ${params.kraken1.dir}/${params.kraken1.db} ${datasetID}.kr1.illumina.out  > kraken_report_illumina.txt
+
+          # filtering out low abundance hits
+
+          awk '\$1>1 {print \$0}' kraken_report_illumina.txt > kraken_report_illumina_1percenthits.txt
 
           #compressing the *.out file
           gzip -9 *.out

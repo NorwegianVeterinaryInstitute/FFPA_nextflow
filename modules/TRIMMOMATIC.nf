@@ -6,7 +6,7 @@ process TRIM {
 
           label 'tiny'
 
-          publishDir "${params.out_dir}/trimmomatic/${datasetID}/", pattern: "*", mode: "copy"
+          publishDir "${params.out_dir}/${datasetID}/trimmomatic/", pattern: "*", mode: "copy"
 
           tag "$datasetID"
 

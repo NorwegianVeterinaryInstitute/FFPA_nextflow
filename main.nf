@@ -8,8 +8,8 @@ log.info """\
          Output - directory             : ${params.out_dir}
          Temporary - directory          : ${workDir}
         --------------------------------- ---------------------------------
-         kraken database                : ${params.kraken1.dir}/${params.kraken1.db}
          trimmomatic adapters           : ${params.adapter_dir}/${params.adapters}
+         kraken database                : ${params.kraken1.dir}/${params.kraken1.db}
         --------------------------------- ---------------------------------
 
 		 """
@@ -59,6 +59,7 @@ workflow HYBRID_ASSEMBLY {
     FASTQC(TRIM.out.trim_reads_ch)
     KRAKENIL(TRIM.out.trim_reads_ch)
 
+
     //Hybrid assembly clusterOptions
     // combining read datasets into one channels
     TRIM.out.trim_reads_ch
@@ -66,6 +67,16 @@ workflow HYBRID_ASSEMBLY {
         .set { all_reads_ch}
 
     UNICYCLER_HYBRID(all_reads_ch)
+
+    // ABRICATE database searching
+    //nanopore assembly
+    ABRICATE_PLASMID_NP(UNICYCLER_NP.out.np_assemblies_ch)
+    ABRICATE_RESFINDER_NP(UNICYCLER_NP.out.np_assemblies_ch)
+
+    //hybrid assembly
+    ABRICATE_PLASMID_HYB(UNICYCLER_HYBRID.out.hyb_assemblies_ch)
+    ABRICATE_RESFINDER_HYB(UNICYCLER_HYBRID.out.hyb_assemblies_ch)
+
 
 }
 
@@ -80,10 +91,14 @@ if (params.track == "hybrid") {
   include { NANOFILT } from "${params.module_dir}/NANOFILT.nf"
   include { KRAKENNP } from "${params.module_dir}/KRAKEN.nf"
   include {UNICYCLER_NP } from "${params.module_dir}/UNICYCLER.nf"
+  include { ABRICATE_PLASMID_NP } from "${params.module_dir}/ABRICATE.nf"
+  include { ABRICATE_RESFINDER_NP } from "${params.module_dir}/ABRICATE.nf"
   include { TRIM } from "${params.module_dir}/TRIMMOMATIC.nf"
   include { FASTQC } from "${params.module_dir}/FASTQC.nf"
   include { KRAKENIL } from "${params.module_dir}/KRAKEN.nf"
   include { UNICYCLER_HYBRID } from "${params.module_dir}/UNICYCLER.nf"
+  include { ABRICATE_PLASMID_HYB } from "${params.module_dir}/ABRICATE.nf"
+  include { ABRICATE_RESFINDER_HYB } from "${params.module_dir}/ABRICATE.nf"
 
   HYBRID_ASSEMBLY()
 	}
